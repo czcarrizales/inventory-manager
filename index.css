@@ -1,0 +1,23 @@
+body {
+
+}
+
+table, th, td {
+    border: 1px solid red;
+}
+
+th, td {
+    padding: 30px;
+}
+
+form {
+    border: 1px solid black;
+}
+
+#search-tools {
+    display: flex;
+}
+
+#search-tools > form {
+    padding: 20px;
+}
