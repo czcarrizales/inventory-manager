@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectCategoriesDropdown = document.getElementById('selectCategoriesDropdown')
     const addProductToDatabaseForm = document.getElementById('addProductToDatabaseForm')
     const addProductCategorySelect = document.getElementById('addProductCategorySelect')
+    const addToInventoryForm = document.getElementById('addToInventoryForm')
+    const addToInventorySelect = document.getElementById('addToInventorySelect')
 
     searchByKeywordForm.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -20,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const companyId = selectCompaniesDropdown.value
         loadData(companyId, undefined, undefined)
         getAllCategories(companyId)
+        getAllProducts(companyId)
     })
 
     addProductToDatabaseForm.addEventListener("submit", (event) => {
@@ -31,6 +34,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const category_id = document.getElementById('addProductCategorySelect').value
         addProductToDatabase(product_name, description, price, category_id)
     })
+
+    function addToInventory(product_id, quantity) {
+        let params = new URLSearchParams()
+        params.append('function', 'addToInventory')
+        params.append('product_id', product_id)
+        params.append('quantity', quantity)
+        axios.post('functions.php', params)
+            .then(response => {
+                console.log(response)
+            })
+    }
+
+    addToInventoryForm.addEventListener("submit", (event) => {
+        event.preventDefault()
+        console.log('added to inventory')
+        const product_id = document.getElementById('addToInventorySelect').value
+        const quantity = document.getElementById('addToInventoryQuantity').value
+        addToInventory(product_id, quantity)
+    })
+
+    // addToInventoryButton.addEventListener('click', () => {
+    //     addToInventory()
+    //     console.log('added to inventory')
+    // })
 
     function addProductToDatabase(product_name, description, price, category_id) {
         const company_id = selectCompaniesDropdown.value
@@ -75,6 +102,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 
+    function getAllProducts(company_id) {
+        axios.get('functions.php?function=getAllProducts', {
+            params: {
+                company_id: company_id
+            }
+        })
+        .then(response => {
+            for (let i = addToInventorySelect.options.length - 1; i >= 0; i--) {
+                const option = addToInventorySelect.options[i];
+                    addToInventorySelect.remove(i);
+            }
+            const data = response.data.result
+            data.forEach(product => {
+                const option = document.createElement('option')
+                option.text = product.product_name
+                option.value = product.product_id
+                addToInventorySelect.appendChild(option)
+            })
+            console.log(data)
+        })
+    }
+
     function getAllCompanies() {
         axios.get('functions.php?function=getAllCompanies')
             .then(response => {
@@ -88,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const company_id = selectCompaniesDropdown.value
                 loadData()
                 getAllCategories(company_id)
+                getAllProducts(company_id)
             })
     }
 

@@ -15,6 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $keyword = $_GET['keyword'];
             $result = getProducts($database, $company_id, $category_id, $keyword);
             echo json_encode(['result' => $result]);
+        } else if ($functionName === 'getProductById') {
+            $product_id = $_GET['product_id'];
+            $result = getProductById($database, $product_id);
+            echo json_encode(['result' => $result]);
         } else if ($functionName === 'searchByKeyword') {
             if (isset($_GET['keyword'])) {
                 $keyword = $_GET['keyword'];
@@ -28,6 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         } else if ($functionName === 'getAllCategories') {
             $company_id = $_GET['company_id'];
             $result = getAllCategories($database, $company_id);
+            echo json_encode(['result' => $result]);
+        } else if ($functionName === 'getAllProducts') {
+            $company_id = $_GET['company_id'];
+            $result = getAllProducts($database, $company_id);
             echo json_encode(['result' => $result]);
         }
     }
@@ -53,12 +61,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $company_id = $_POST['company_id'];
             echo addProductToDatabase($database, $product_name, $description, $price, $category_id, $company_id);
             
+        } elseif ($function === 'addToInventory') {
+            $product_id = (int)$_POST['product_id'];
+            $quantity = (int)$_POST['quantity'];
+            addToInventory($database, $product_id, $quantity);
         } else {
             echo json_encode(['message' => 'the function does not exist?']);
         }
     }
 } else {
     echo json_encode(['message' => 'something went wrong or invalid request']);
+}
+
+function getAllProducts($database, $company_id) {
+    $database->query("SELECT * FROM products WHERE company_id = :company_id");
+    $database->bind(":company_id", $company_id);
+    $result = $database->resultset();
+    return $result;
+}
+
+function addToInventory($database, $product_id, $quantity) {
+    for ($i = 0; $i < $quantity; $i++) {
+        $database->query("INSERT INTO inventory (product_id) VALUES (:product_id)");
+        $database->bind(':product_id', $product_id);
+        $database->execute();
+    }
+   
 }
 
 function addProductToDatabase($database, $product_name, $description, $price, $category_id, $company_id)
@@ -109,6 +137,13 @@ function getProducts($database, $company_id, $category_id, $keyword)
         $result = $database->resultset();
         return [$company_name, $result];
     }
+}
+
+function getProductById($database, $product_id) {
+    $database->query("SELECT * FROM products WHERE product_id=:product_id");
+    $database->bind(':product_id', $product_id);
+    $result = $database->resultset();
+    return $result;
 }
 
 function getAllCompanies($database)

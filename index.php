@@ -72,8 +72,14 @@ if (!isAuthenticated()) {
             </div>
             <input type="submit" value="Add Product">
         </form>
+        
     </div>
-
+    <form action="" id="addToInventoryForm">
+        <h2>Add To Inventory By Product</h2>
+        <select name="" id="addToInventorySelect"></select>
+        <input type="number" id="addToInventoryQuantity" min="1" value="1">
+        <input type="submit">
+    </form>
     <table>
         <thead>
             <tr>
